@@ -2,6 +2,25 @@ name: A workflow for my Hello World file
 on: push
 
 jobs:
+  which_branch:
+    runs-on: ubuntu-latest
+    steps:
+      # extract branch name
+      - name: Extract branch name
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "::set-env name=CURRENT_BRANCH::$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      # extract branch name on pull request
+      - name: Print branch name
+        if: github.event_name == 'pull_request'
+        run: echo "::set-env name=CURRENT_BRANCH::$(echo ${GITHUB_HEAD_REF})"
+
+      # print branch name
+      - name: Get branch name
+        run: echo 'The branch name is' $CURRENT_BRANCH
+
   build:
     name: Hello world action
     runs-on: ubuntu-latest
@@ -10,3 +29,5 @@ jobs:
       - uses: ./action-a
         with:
           MY_NAME: "Mona"
+      - name: check branch
+        run: echo 'The branch name is' $CURRENT_BRANCH
